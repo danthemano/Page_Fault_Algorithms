@@ -1,4 +1,4 @@
-package pagefault;
+package company;
 
 import java.util.*;
 
