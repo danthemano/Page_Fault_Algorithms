@@ -1,4 +1,4 @@
-package pagefault;
+package company;
 
 public class LRU {
 	int value;
