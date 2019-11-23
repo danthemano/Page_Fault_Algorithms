@@ -2,144 +2,237 @@ package company;
 
 import java.util.*;
 
-public class Algorithm
-{
-    ArrayList<Integer> pgTable =  new ArrayList<Integer>(30);
-    ArrayList<Integer> pageRefString = new ArrayList<Integer>(100);
-    boolean isInTable = false;
-    int pageFaults;
+public class Algorithm {
+	ArrayList<Integer> pgTable = new ArrayList<Integer>(30);
+	ArrayList<Integer> pageRefString = new ArrayList<Integer>(100);
+	boolean isInTable = false;
+	int pageFaults;
 
-    Random rand = new Random();
-    public Algorithm()
-    {
-        for(int i = 0; i < 100; i++)
-            pageRefString.add(rand.nextInt(50));
-        pageFaults = 0;
-    }
-    public void resetPageTable()
-    {
-        pgTable.clear();
-        for(int j = 0; j < 30; j++) pgTable.add(-1);
-    }
-    public void FIFO()
-    {
-        resetPageTable();
-        pageFaults = 0;
-        int firstIn = 0;
-        isInTable = false;
-        //clears the page table upon calling the FIFO algorithm
-        for(int i = 0; i < 100; i++) {
-            isInTable = false;
-            for (Integer x : pgTable) {
-                //If found in the table continue loop, no eviction happens
-                if (pageRefString.get(i) == x) {
-                    isInTable = true;
-                    break;
-                }
-            }
-            if (!isInTable)
-            {
-                pgTable.set(firstIn, pageRefString.get(i));
-                firstIn = (firstIn + 1) % 30;
-                pageFaults++;
-            }
-        }
-    }
-    public void LRU()
-    {   
-        resetPageTable();
-    	//Boolean to check if the value is the table
-        isInTable = false;
-        pageFaults = 0;
-        //counter to keep track of priority
-        int counter = 0;
-        
-        int leastPriorityIndex = 0;
-        int leastPriority = 0;
-        //instantiating LRU table
-        ArrayList<LRU> LRUpgTable = new ArrayList<LRU>();
-        
-        //Filling in the LRU table with dummy values
-        for(int j = 0; j < 30; j++) LRUpgTable.add(new LRU(-1, -1));
-        
-        for(int i = 0; i < 100; i++){
-        	isInTable = false;
-        	
-        	for (LRU c : LRUpgTable) {
-        		if(c.getValue() == pageRefString.get(i)) {
-        			isInTable = true;
-        		    c.setPriority(counter++);
-        			break;
-        		}
-        	}
-        	
-        	//if the page is not in the table
-        	if(!isInTable) 
-        	{
-        		//resets the variables to search for the element with the least priority
-        		leastPriorityIndex = 0;
-        		leastPriority= 0;
-        		
-        		//this loop finds the index of the page is the table that was least recently used
-        		for(int j = 0; j < 30; j++) 
-        		{
-        			if(LRUpgTable.get(j).getPriority() >=0 && 
-        			   LRUpgTable.get(j).getPriority() < leastPriority)
-        			{
-        				leastPriorityIndex = j;
-        				leastPriority = LRUpgTable.get(j).getPriority();
-        			}
-        		}
-        		
-        		//Setting the frame to an item with new information from the page ref string.
-        		LRUpgTable.set(leastPriorityIndex, new LRU(pageRefString.get(i),counter++));
-        		
-        		//incrementing the amount of page faults
-        		pageFaults++;
-        	}
-        }
-    }
-    
-    public void Optimal() {
-    	resetPageTable();
-        pageFaults = 0;
-    	//Boolean to check if the value is the table
-        isInTable = false;
-        
-        for(int i = 0; i < 100; i++) {
-            isInTable = false;
-            for (Integer x : pgTable) {
-                //If found in the table continue loop, no eviction happens
-                if (pageRefString.get(i) == x) {
-                    isInTable = true;
-                    break;
-                }
-            }
-            
-            if (!isInTable)
-            {
-            	int late = -1, indexReplace=0,count=0;
-            	for(int j = 0; j < 30; j++) {
-            		for(int k = i+1; k < 100; k++){
-            			if(pgTable.get(j) == pageRefString.get(i)&&pgTable.get(i) != -1)
-            				late = k-i;
-            		}
-            		
-            		if(late>=indexReplace)
-            			indexReplace = j;
-            		else indexReplace = count;
-            		
-            		count++;
-            	}
-            	
-                pgTable.set(indexReplace, pageRefString.get(i));
-                pageFaults++;
-            }
-        }
-    }
+	Random rand = new Random();
 
-    public int getPageFaults()
-    {
-        return pageFaults;
-    }
+	public Algorithm() {
+		for (int i = 0; i < 100; i++)
+			pageRefString.add(rand.nextInt(50));
+		//Testing code against homework
+//		int[] hwArray = new int[] { 7, 2, 3, 1, 2, 5, 3, 4, 6, 7, 7, 1, 0, 5, 4, 6, 2, 3, 0, 1 };
+//		for (int i = 0; i < hwArray.length; i++)
+//			pageRefString.add(hwArray[i]);
+		pageFaults = 0;
+	}
+
+	public void resetPageTable() {
+		pgTable.clear();
+//        for(int j = 0; j < 30; j++) pgTable.add(-1);
+	}
+
+	public void FIFO() {
+		// variable to keep track of what will exist next
+		int firstIn = 0;
+
+		//Testing variable against homework
+//		int capacity = 3;
+		for (int capacity = 1; capacity <= 30; capacity++) {
+		resetPageTable();
+		pageFaults = 0;
+		// clears the page table upon calling the FIFO algorithm
+		for (int i = 0; i < pageRefString.size(); i++) {
+			// Checking if the page table contains the item from the reference string
+			if (!pgTable.contains(pageRefString.get(i))) {
+				// if the table is not full, then the item will be appended to the end
+				if (pgTable.size() < capacity)
+					pgTable.add(pageRefString.get(i));
+
+				// In the case that the table is at capacity
+				else {
+					// setting the next item to the first in to be replaced
+					pgTable.set(firstIn, pageRefString.get(i));
+
+					// incrementing the next to be replaced
+					firstIn = (firstIn + 1) % capacity;
+				}
+				// incrementing the number of page faults
+				pageFaults++;
+			}
+		}
+
+			System.out.println("Capaacity: " + capacity + " PageFaults:" + getPageFaults());
+		}
+	}
+
+	public void LRU() {
+		// counter to keep track of priority
+//        int counter = 0;
+
+		// keeping track of recently used.
+//		int recent = 0;
+//		int leastPriorityIndex = 0;
+//		int leastPriority = 0;
+		// instantiating LRU table
+//        ArrayList<LRU> LRUpgTable = new ArrayList<LRU>();
+		// Code for testing against homework
+//		int capacity = 3;
+		for (int capacity = 1; capacity <= 30; capacity++) {
+			resetPageTable();
+			pageFaults = 0;
+			
+			//Adding the first value to avoid empty table
+			//pgTable.add(pageRefString.get(0));
+			//pageFaults++;
+
+			int valueToReplace = 0, previous = 0;
+
+			for (int i = 0; i < pageRefString.size(); i++) {
+				//Testing variable to see current item
+//				int currentValue = pageRefString.get(i);
+				
+				// variable to hold the value that needs to be replaced and the least
+				// recently used variable.
+
+				// if the item is not contained already in the table
+				if (!pgTable.contains(pageRefString.get(i))) {
+
+//        		if(pgTable.size()<=capacity) {
+//        			pageFaults++;
+//        			pgTable.add(pageRefString.get(i));
+//        		}
+
+					// incrementing the number of page faults
+					pageFaults++;
+
+					// if the table can accommodate more entries, then it will be appended and
+					// will continue to look at the next item in the string
+					if (pgTable.size() < capacity) {
+						pgTable.add(pageRefString.get(i));
+						continue;
+					}
+					// Going through each item currently in the pgTable.
+					for (int j = 0; j < pgTable.size(); j++) {
+						// setting a counter to keep track of how recent an item was used in the table
+						int counter = 0;
+
+						// setting x to the page table size as we will be going backwards on the
+						// reference string to see when a register was used
+						int x = pgTable.size();
+
+						// While we have not reached the end of the table
+						while (x >= 0) {
+
+							// incrementing the counter per each iteration
+							counter++;
+
+							// If we find an instance where we find that an register was used in the
+							// reference string
+							if (pgTable.get(j) == pageRefString.get(x)) {
+								if (counter > previous) {
+									// if the counter of the string is greater than that of the previous
+									// then set the previous to the counter as it is the least recently used.
+									previous = counter;
+									// holding the value so we know what value to look for to replace
+									valueToReplace = pgTable.get(j);
+									break;
+								}
+							}
+							// If we reach the end of the list and have found nothing greater then previous
+							// then we'll just set
+							// the previous to the current counter.
+							if (x == 0 && counter > previous) {
+								previous = counter;
+								valueToReplace = pgTable.get(j);
+							}
+							x--;
+						}
+					}
+
+					for (int k = 0; k < pgTable.size(); k++) {
+						if (pgTable.get(k) == valueToReplace) {
+							pgTable.set(k, pageRefString.get(i));
+							previous = 0;
+							valueToReplace = 0;
+							break;
+						}
+
+					}
+				}
+
+				// resets the variables to search for the element with the least priority
+
+				// this loop finds the index of the page is the table that was least recently
+				// used
+//        		for(int j = 0; j < capacity; j++) {
+//        			if(LRUpgTable.get(j).getPriority() >=0 && 
+//        			   LRUpgTable.get(j).getPriority() < leastPriority)
+//        			{
+//        				leastPriorityIndex = j;
+//        				leastPriority = LRUpgTable.get(j).getPriority();
+//        			}
+//        		}
+
+				// Setting the frame to an item with new information from the page ref string.
+//        		LRUpgTable.set(leastPriorityIndex, new LRU(pageRefString.get(i),counter++));
+
+				// incrementing the amount of page faults
+//        		pageFaults++;
+			}
+			System.out.println("Capacity: " + capacity + " PageFaults:" + getPageFaults());
+		}
+	}
+
+	public void Optimal() {
+		// Code for testing against homework
+//		int capacity = 3;
+		for (int capacity = 1; capacity <= 30; capacity++) {
+			resetPageTable();
+			pageFaults = 0;
+			
+			for (int i = 0; i < pageRefString.size(); i++) {
+
+				// if the current item in the page reference string is not in the page table
+				if (!pgTable.contains(pageRefString.get(i))) {
+
+					pageFaults++;
+					if (pgTable.size() < capacity) {
+						pgTable.add(pageRefString.get(i));
+					}
+					// counters to find which is the latest to be used
+					int latest = -1, valueToReplace = -1;
+
+					// going through each item and each item in the reference string
+					for (int j = 0; j < pgTable.size(); j++) {
+						int counter = 0;
+
+						for (int x = i; x < pageRefString.size(); x++) {
+							counter++;
+							// if the number is found then
+							if (pgTable.get(j) == pageRefString.get(x)) {
+								if (counter > latest) {
+									latest = counter;
+									valueToReplace = pgTable.get(j);
+									break;
+								}
+								break;
+							}
+
+							else if (x + 1 == pageRefString.size()) {
+								latest = counter;
+								valueToReplace = pgTable.get(j);
+								break;
+							}
+						}
+					}
+
+					for (int z = 0; z < pgTable.size(); z++) {
+						if (pgTable.get(z) == valueToReplace) {
+							pgTable.set(z, pageRefString.get(i));
+							break;
+						}
+					}
+				}
+			}
+			System.out.println("Capacity: " + capacity + " PageFaults:" + getPageFaults());
+		}
+	}
+
+	public int getPageFaults() {
+		return pageFaults;
+	}
 }
