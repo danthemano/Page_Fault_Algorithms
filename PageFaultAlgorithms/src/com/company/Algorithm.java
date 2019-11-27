@@ -1,4 +1,4 @@
-package company;
+package pagefault;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ public class Algorithm {
 	public Algorithm() {
 		for (int i = 0; i < 100; i++)
 			pageRefString.add(rand.nextInt(50));
-		//Testing code against homework
+		// Testing code against homework
 //		int[] hwArray = new int[] { 7, 2, 3, 1, 2, 5, 3, 4, 6, 7, 7, 1, 0, 5, 4, 6, 2, 3, 0, 1 };
 //		for (int i = 0; i < hwArray.length; i++)
 //			pageRefString.add(hwArray[i]);
@@ -22,14 +22,13 @@ public class Algorithm {
 
 	public void resetPageTable() {
 		pgTable.clear();
-//        for(int j = 0; j < 30; j++) pgTable.add(-1);
 	}
 
 	public void FIFO() {
 		// variable to keep track of what will exist next
 		int firstIn = 0;
 
-		//Testing variable against homework
+		// Testing variable against homework
 //		int capacity = 3;
 		for (int capacity = 1; capacity <= 30; capacity++) {
 		resetPageTable();
@@ -60,119 +59,80 @@ public class Algorithm {
 	}
 
 	public void LRU() {
-		// counter to keep track of priority
-//        int counter = 0;
-
-		// keeping track of recently used.
-//		int recent = 0;
-//		int leastPriorityIndex = 0;
-//		int leastPriority = 0;
-		// instantiating LRU table
-//        ArrayList<LRU> LRUpgTable = new ArrayList<LRU>();
 		// Code for testing against homework
 //		int capacity = 3;
 		for (int capacity = 1; capacity <= 30; capacity++) {
-			resetPageTable();
-			pageFaults = 0;
-			
-			//Adding the first value to avoid empty table
-			//pgTable.add(pageRefString.get(0));
-			//pageFaults++;
+		resetPageTable();
+		pageFaults = 0;
 
+		for (int i = 0; i < pageRefString.size(); i++) {
 			int valueToReplace = 0, previous = 0;
+			// Testing variable to see current item
+			int currentValue = pageRefString.get(i);
 
-			for (int i = 0; i < pageRefString.size(); i++) {
-				//Testing variable to see current item
-//				int currentValue = pageRefString.get(i);
-				
-				// variable to hold the value that needs to be replaced and the least
-				// recently used variable.
+			// variable to hold the value that needs to be replaced and the least
+			// recently used variable.
 
-				// if the item is not contained already in the table
-				if (!pgTable.contains(pageRefString.get(i))) {
-
+			// if the item is not contained already in the table
+			if (!pgTable.contains(pageRefString.get(i))) {
 //        		if(pgTable.size()<=capacity) {
 //        			pageFaults++;
 //        			pgTable.add(pageRefString.get(i));
 //        		}
+				// incrementing the number of page faults
+				pageFaults++;
+				// if the table can accommodate more entries, then it will be appended and
+				// will continue to look at the next item in the string
+				if (pgTable.size() < capacity) {
+					pgTable.add(pageRefString.get(i));
+					continue;
+				}
+				// Going through each item currently in the pgTable.
+				for (int j = 0; j < pgTable.size(); j++) {
 
-					// incrementing the number of page faults
-					pageFaults++;
+					// setting a counter to keep track of how recent an item was used in the table
+					int counter = 0;
+					// setting x to the page table size as we will be going backwards on the
+					// reference string to see when a register was used
+					int x = i;
 
-					// if the table can accommodate more entries, then it will be appended and
-					// will continue to look at the next item in the string
-					if (pgTable.size() < capacity) {
-						pgTable.add(pageRefString.get(i));
-						continue;
-					}
-					// Going through each item currently in the pgTable.
-					for (int j = 0; j < pgTable.size(); j++) {
-						// setting a counter to keep track of how recent an item was used in the table
-						int counter = 0;
-
-						// setting x to the page table size as we will be going backwards on the
-						// reference string to see when a register was used
-						int x = pgTable.size();
-
-						// While we have not reached the end of the table
-						while (x >= 0) {
-
-							// incrementing the counter per each iteration
-							counter++;
-
-							// If we find an instance where we find that an register was used in the
-							// reference string
-							if (pgTable.get(j) == pageRefString.get(x)) {
-								if (counter > previous) {
-									// if the counter of the string is greater than that of the previous
-									// then set the previous to the counter as it is the least recently used.
-									previous = counter;
-									// holding the value so we know what value to look for to replace
-									valueToReplace = pgTable.get(j);
-									break;
-								}
-							}
-							// If we reach the end of the list and have found nothing greater then previous
-							// then we'll just set
-							// the previous to the current counter.
-							if (x == 0 && counter > previous) {
+					// While we have not reached the end of the table
+					while (x >= 0) {
+						// incrementing the counter per each iteration
+						counter++;
+						
+						// If we find an instance where we find that an register was used in the
+						// reference string
+						if (pgTable.get(j) == pageRefString.get(x)) {
+							if (counter > previous) {
+								// if the counter of the string is greater than that of the previous
+								// then set the previous to the counter as it is the least recently used.
 								previous = counter;
+								// holding the value so we know what value to look for to replace
 								valueToReplace = pgTable.get(j);
+								break;
 							}
-							x--;
-						}
-					}
-
-					for (int k = 0; k < pgTable.size(); k++) {
-						if (pgTable.get(k) == valueToReplace) {
-							pgTable.set(k, pageRefString.get(i));
-							previous = 0;
-							valueToReplace = 0;
 							break;
 						}
-
+						// If we reach the end of the list and have found nothing greater then previous
+						// then we'll just set
+						// the previous to the current counter.
+						if (x == 0 && counter > previous) {
+							previous = counter;
+							valueToReplace = pgTable.get(j);
+						}
+						x--;
 					}
 				}
 
-				// resets the variables to search for the element with the least priority
-
-				// this loop finds the index of the page is the table that was least recently
-				// used
-//        		for(int j = 0; j < capacity; j++) {
-//        			if(LRUpgTable.get(j).getPriority() >=0 && 
-//        			   LRUpgTable.get(j).getPriority() < leastPriority)
-//        			{
-//        				leastPriorityIndex = j;
-//        				leastPriority = LRUpgTable.get(j).getPriority();
-//        			}
-//        		}
-
-				// Setting the frame to an item with new information from the page ref string.
-//        		LRUpgTable.set(leastPriorityIndex, new LRU(pageRefString.get(i),counter++));
-
-				// incrementing the amount of page faults
-//        		pageFaults++;
+				for (int k = 0; k < pgTable.size(); k++) {
+					if (pgTable.get(k) == valueToReplace) {
+						pgTable.set(k, pageRefString.get(i));
+						break;
+					}
+				}
 			}
+		}
 			System.out.println("Capacity: " + capacity + " PageFaults:" + getPageFaults());
 		}
 	}
@@ -181,53 +141,52 @@ public class Algorithm {
 		// Code for testing against homework
 //		int capacity = 3;
 		for (int capacity = 1; capacity <= 30; capacity++) {
-			resetPageTable();
-			pageFaults = 0;
-			
-			for (int i = 0; i < pageRefString.size(); i++) {
+		resetPageTable();
+		pageFaults = 0;
 
-				// if the current item in the page reference string is not in the page table
-				if (!pgTable.contains(pageRefString.get(i))) {
+		for (int i = 0; i < pageRefString.size(); i++) {
 
-					pageFaults++;
-					if (pgTable.size() < capacity) {
-						pgTable.add(pageRefString.get(i));
-					}
-					// counters to find which is the latest to be used
-					int latest = -1, valueToReplace = -1;
+			// if the current item in the page reference string is not in the page table
+			if (!pgTable.contains(pageRefString.get(i))) {
+				pageFaults++;
+				if (pgTable.size() < capacity) {
+					pgTable.add(pageRefString.get(i));
+				}
+				// counters to find which is the latest to be used
+				int latest = -1, valueToReplace = -1;
 
-					// going through each item and each item in the reference string
-					for (int j = 0; j < pgTable.size(); j++) {
-						int counter = 0;
+				// going through each item and each item in the reference string
+				for (int j = 0; j < pgTable.size(); j++) {
+					int counter = 0;
 
-						for (int x = i; x < pageRefString.size(); x++) {
-							counter++;
-							// if the number is found then
-							if (pgTable.get(j) == pageRefString.get(x)) {
-								if (counter > latest) {
-									latest = counter;
-									valueToReplace = pgTable.get(j);
-									break;
-								}
-								break;
-							}
-
-							else if (x + 1 == pageRefString.size()) {
+					for (int x = i; x < pageRefString.size(); x++) {
+						counter++;
+						// if the number is found then
+						if (pgTable.get(j) == pageRefString.get(x)) {
+							if (counter > latest) {
 								latest = counter;
 								valueToReplace = pgTable.get(j);
 								break;
 							}
+							break;
 						}
-					}
 
-					for (int z = 0; z < pgTable.size(); z++) {
-						if (pgTable.get(z) == valueToReplace) {
-							pgTable.set(z, pageRefString.get(i));
+						else if (x + 1 == pageRefString.size()) {
+							latest = counter;
+							valueToReplace = pgTable.get(j);
 							break;
 						}
 					}
 				}
+
+				for (int z = 0; z < pgTable.size(); z++) {
+					if (pgTable.get(z) == valueToReplace) {
+						pgTable.set(z, pageRefString.get(i));
+						break;
+					}
+				}
 			}
+		}
 			System.out.println("Capacity: " + capacity + " PageFaults:" + getPageFaults());
 		}
 	}
