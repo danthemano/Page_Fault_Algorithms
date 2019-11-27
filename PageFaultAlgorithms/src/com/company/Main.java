@@ -1,4 +1,4 @@
-package company;
+package pagefault;
 
 public class Main {
 
@@ -6,24 +6,18 @@ public class Main {
     {
         Algorithm a = new Algorithm();
         //Status: Complete
-        //Necessary Value: 17
-        //Actual Value: 17
         System.out.println("FIFO");
         a.FIFO();
-        System.out.println(a.getPageFaults());
-
-        //Status: Fixing issues where LRU isn't recognizing a couple of page faults
-        //Necessary value: 18
-        //Actual returned: 15
+//        System.out.println(a.getPageFaults());
+//        
+//        //TODO fix implementation on LRU
         System.out.println("LRU");
         a.LRU();
-        System.out.println(a.getPageFaults());
+//        System.out.println(a.getPageFaults());
         
-        //Status Complete
-        //Necessary Value: 13
-        //Actual Value: 13
+        //TODO fix implementation on Optimal
         System.out.println("Optimal");
         a.Optimal();
-        System.out.println(a.getPageFaults());
+//        System.out.println(a.getPageFaults());
     }
 }
